@@ -1,0 +1,54 @@
+version: '3.3'
+services:
+  db:
+    image: postgres
+    container_name: db
+    hostname: db
+    environment:
+      - POSTGRES_DB=master
+      - POSTGRES_USER=superAdmin
+      - POSTGRES_PASSWORD=asdw#1324
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: pg_isready -U superAdmin -d master
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      network:
+        ipv4_address: 10.5.0.10
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: 
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+        required: true
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    links:
+      - db:db
+    networks:
+      network:
+        ipv4_address: 10.5.0.14
+    healthcheck:
+      test: curl -f http://localhost:8000/healthcheck/ || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+networks:
+  network:
+    driver: bridge
+    ipam:
+      config:
+          - subnet: "10.5.0.0/16"
+            gateway: 10.5.0.1
