@@ -8,7 +8,7 @@ books_router = APIRouter(prefix = "/books", tags = ["books"])
 
 @books_router.get("/search")
 async def search_book(search_fields: BookSearch = Depends(), paginator: LimitOffsetPaginator = Depends(), sort: BookSort = Depends()):
-    _dao_list = BooksDAO().list(skip = paginator.offset, limit = paginator.limit, filter = search_fields)
+    _dao_list = BooksDAO().list(skip = paginator.offset, limit = paginator.limit, filter = search_fields, sort = sort)
     if _dao_list.status == QueryStatus.success:
         return _dao_list.data
     else:
