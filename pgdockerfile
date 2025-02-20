@@ -1,0 +1,8 @@
+FROM postgres
+
+RUN dir
+
+COPY gutendex.dump /docker-entrypoint-initdb.d/001_data.sql
+
+ENV PGDATA=/data
+
